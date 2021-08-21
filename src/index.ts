@@ -57,20 +57,34 @@ class Queue extends Array{
   }
 }
 
-function isFunction(props: any) {
-  return Object.prototype.toString.call(props) === '[object Function]'
-}
-function isArray(props: any) {
-  return Array.isArray(props)
-}
-function isAsyncFunction(props: any) {
-  return Object.prototype.toString.call(props) === '[object AsyncFunction]'
-}
-function validateArgs(args: any| any[]) {
-  if (isArray(args)) {
-    return !args.find((arg: any) => !isFunction(arg))
-  }
-  return isAsyncFunction(args) || isFunction(args)
-}
+export default Queue
 
 
+
+
+// concurrency 可选 表示最多并行的项目
+const queue = new Queue({concurrency: 3})
+
+const sleep = (time: number) => new Promise(resolve => setTimeout(resolve, time))
+
+
+queue.push(async () => {
+  await sleep(1000)
+  console.log('sleep 1000ms')
+})
+queue.push(async () => {
+  await sleep(2000)
+  console.log('sleep 2000ms')
+})
+queue.push(async () => {
+  await sleep(3000)
+  console.log('sleep 3000ms')
+})
+queue.push(() => {
+  console.log('worked')
+})
+
+queue.push(async () => {
+  await sleep(1000)
+  console.log('over')
+})

@@ -1,24 +1,45 @@
-# a hook of mouse state by listen mouse event
+# an js queue
 
 ## 使用
 
 ```javascript
-import { useCallback } from 'react';
-import { initialMouseState, useMouseState } from './src';
+import Queue from '@a417420427/queue'
+const queue = new Queue({ concurrency: 3 })
 
-const Sample = () => {
-  const [mouseState, setMouseState] = useMouseState(document.body);
-  const resetState = useCallback(() => {
-    setMouseState(initialMouseState);
-  }, [setMouseState]);
-  return (
-    <div className="mouse-state">
-      <button onClick={resetState}>重置</button>
-      <div className="moveX">x轴方向的移动距离，初始为0: {mouseState.moveX}</div>
-      <div className="moveX">y轴方向的移动距离，初始为0: {mouseState.moveY}</div>
-      <div className="moveX">放大倍数，初始值为1: {mouseState.scale}</div>
-      <div className="moveX">旋转角度，初始为0: {mouseState.rotation}</div>
-    </div>
-  );
-};
+const sleep = (time: number) =>
+  new Promise((resolve) => setTimeout(resolve, time))
+
+const currentTime = () => Date.now()
+let timeStamp = currentTime()
+queue.push(async () => {
+  await sleep(1000)
+  console.log('sleep 1000ms after ' + (currentTime() - timeStamp))
+})
+queue.push(async () => {
+  await sleep(2000)
+  console.log('sleep 2000ms after ' + (currentTime() - timeStamp))
+})
+queue.push(async () => {
+  await sleep(3000)
+  console.log('sleep 3000ms after ' + (currentTime() - timeStamp))
+})
+queue.push(() => {
+  console.log('worked after ' + (currentTime() - timeStamp))
+})
+queue.push(async () => {
+  await sleep(1000)
+  console.log('over after ' + (currentTime() - timeStamp))
+})
+
+queue.start()
+
+// 输出
+/**
+sleep 1000ms after 1037
+worked after 1037
+sleep 2000ms after 2100
+over after 2100
+sleep 3000ms after 4184
+ * 
+*/
 ```
